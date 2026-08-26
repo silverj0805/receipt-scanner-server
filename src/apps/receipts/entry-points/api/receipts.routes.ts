@@ -6,6 +6,7 @@ import {
   findAllReceipts,
   findReceiptsByDateRange,
   findReceiptById,
+  updateReceipt,
 } from '../../data-access/receipts.repository.js';
 
 export const receiptsRouter = Router();
@@ -38,4 +39,16 @@ receiptsRouter.get('/:id', async (req, res) => {
   res.json(receipt);
 });
 
-// Task 6부터 이 라우터에 라우트가 이어서 추가됨 (PATCH /:id, DELETE /:id)
+receiptsRouter.patch('/:id', async (req, res) => {
+  const { merchant, amount, rawText, date, category } = req.body;
+  const data: Record<string, unknown> = {};
+  if (merchant !== undefined) data.merchant = merchant;
+  if (amount !== undefined) data.amount = amount;
+  if (rawText !== undefined) data.rawText = rawText;
+  if (date !== undefined) data.date = new Date(date);
+  if (category !== undefined) data.category = category;
+  const receipt = await updateReceipt(Number(req.params.id), data);
+  res.json(receipt);
+});
+
+// Task 7부터 이 라우터에 라우트가 이어서 추가됨 (DELETE /:id)

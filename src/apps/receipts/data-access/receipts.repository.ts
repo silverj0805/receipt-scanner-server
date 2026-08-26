@@ -21,3 +21,16 @@ export function findReceiptsByDateRange(start: Date, end: Date) {
 export function findReceiptById(id: number) {
   return prisma.receipt.findUnique({ where: { id } });
 }
+
+export function updateReceipt(
+  id: number,
+  data: Partial<{
+    merchant: string;
+    amount: number;
+    category: string;
+    rawText: string;
+    date: Date;
+  }>,
+) {
+  return prisma.receipt.update({ where: { id }, data });
+}
