@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { classifyCategory } from '../../domain/category.util.js';
 import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
+import { parseTake, parseSkip } from '../../domain/pagination.util.js';
 import {
   createReceipt,
   findAllReceipts,
@@ -19,8 +20,10 @@ receiptsRouter.post('/', async (req, res) => {
   res.status(201).json(receipt);
 });
 
-receiptsRouter.get('/', async (_req, res) => {
-  const receipts = await findAllReceipts();
+receiptsRouter.get('/', async (req, res) => {
+  const take = parseTake(req.query.take);
+  const skip = parseSkip(req.query.skip);
+  const receipts = await findAllReceipts(take, skip);
   res.json(receipts);
 });
 

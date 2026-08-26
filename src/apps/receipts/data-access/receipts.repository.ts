@@ -10,8 +10,8 @@ export function createReceipt(data: {
   return prisma.receipt.create({ data });
 }
 
-export function findAllReceipts() {
-  return prisma.receipt.findMany({ orderBy: { date: 'desc' } });
+export function findAllReceipts(take: number, skip: number) {
+  return prisma.receipt.findMany({ orderBy: { date: 'desc' }, take, skip });
 }
 
 export function findReceiptsByDateRange(start: Date, end: Date) {
