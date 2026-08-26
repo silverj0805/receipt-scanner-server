@@ -9,3 +9,7 @@ export function createReceipt(data: {
 }) {
   return prisma.receipt.create({ data });
 }
+
+export function findAllReceipts() {
+  return prisma.receipt.findMany({ orderBy: { date: 'desc' } });
+}
