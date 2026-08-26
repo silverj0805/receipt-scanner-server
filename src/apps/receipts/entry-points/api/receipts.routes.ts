@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { classifyCategory } from '../../domain/category.util.js';
 import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
 import { parseTake, parseSkip } from '../../domain/pagination.util.js';
 import {
@@ -14,8 +13,7 @@ import {
 export const receiptsRouter = Router();
 
 receiptsRouter.post('/', async (req, res) => {
-  const { merchant, amount, rawText, date } = req.body;
-  const category = classifyCategory(merchant);
+  const { merchant, amount, category, rawText, date } = req.body;
   const receipt = await createReceipt({ merchant, amount, category, rawText, date: new Date(date) });
   res.status(201).json(receipt);
 });

@@ -18,11 +18,6 @@ classDiagram
         +DELETE /:id
     }
 
-    class categoryUtil {
-        <<domain>>
-        +classifyCategory(merchant) string
-    }
-
     class summaryUtil {
         <<domain>>
         +buildSummary(thisMonth, lastMonth) Summary
@@ -51,7 +46,6 @@ classDiagram
         +DateTime createdAt
     }
 
-    receiptsRouter --> categoryUtil : uses
     receiptsRouter --> summaryUtil : uses
     receiptsRouter --> receiptsRepository : uses
     receiptsRepository --> prisma : uses
@@ -104,9 +98,8 @@ sequenceDiagram
     App->>Native: scanText(imageUri)
     Native-->>App: rawText (OCR 결과)
     App->>App: 정규식으로 금액/날짜 1차 파싱
-    U->>App: 확인/수정 후 저장하기
-    App->>API: POST /receipts { merchant, amount, rawText, date }
-    API->>API: classifyCategory(merchant)
+    U->>App: 카테고리 칩 선택 후 저장하기
+    App->>API: POST /receipts { merchant, amount, category, rawText, date }
     API->>Repo: createReceipt(data)
     Repo->>DB: INSERT Receipt
     DB-->>Repo: 저장된 Receipt
