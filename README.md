@@ -25,8 +25,9 @@ receipt-scanner-server/
 │  └─ libraries/             # 컴포넌트 간 공용/범용 기능 (DB 클라이언트 등)
 ├─ prisma/
 │  └─ migrations/            # DB 스키마 변경 이력
-└─ generated/
-   └─ prisma/                # Prisma가 자동 생성하는 타입 안전 클라이언트 (git 제외)
+├─ generated/
+│  └─ prisma/                # Prisma가 자동 생성하는 타입 안전 클라이언트 (git 제외)
+└─ docs/                     # 아키텍처 문서 (다이어그램)
 ```
 
 - **apps/** — 도메인(컴포넌트) 하나당 폴더 하나. 지금은 `receipts` 하나뿐이지만, 컴포넌트가 늘어나도 서로 독립적으로 확장 가능한 구조.
@@ -42,3 +43,7 @@ npm start       # 프로덕션 실행
 ```
 
 `DATABASE_URL` 환경변수 필요 (`.env` 참고, 예: `file:./dev.db`).
+
+## 아키텍처
+
+구조/객체/시퀀스/유스케이스 다이어그램은 [docs/architecture.md](docs/architecture.md) 참고.
