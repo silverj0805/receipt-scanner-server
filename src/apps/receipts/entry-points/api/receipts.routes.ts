@@ -23,6 +23,37 @@ receiptsRouter.use((req, res, next) => {
   next();
 });
 
+/**
+ * @openapi
+ * /receipts:
+ *   post:
+ *     summary: 영수증 생성
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [merchant, amount, category, date]
+ *             properties:
+ *               merchant: { type: string }
+ *               amount: { type: integer }
+ *               category: { type: string, enum: [food, transit, shop, culture, health, etc] }
+ *               rawText: { type: string }
+ *               date: { type: string, format: date }
+ *     responses:
+ *       201:
+ *         description: 생성됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Receipt'
+ *       400:
+ *         description: X-Device-Id 헤더 누락 또는 입력값 검증 실패
+ */
 receiptsRouter.post('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const errors = validateReceiptCreate(req.body);
@@ -39,6 +70,30 @@ receiptsRouter.post('/', async (req, res) => {
   res.status(201).json(receipt);
 });
 
+/**
+ * @openapi
+ * /receipts:
+ *   get:
+ *     summary: 영수증 목록 조회 (페이지네이션)
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *       - name: take
+ *         in: query
+ *         schema: { type: integer, default: 10, maximum: 50 }
+ *       - name: skip
+ *         in: query
+ *         schema: { type: integer, default: 0 }
+ *     responses:
+ *       200:
+ *         description: 영수증 목록
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Receipt'
+ */
 receiptsRouter.get('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const take = parseTake(req.query.take);
@@ -47,6 +102,33 @@ receiptsRouter.get('/', async (req, res) => {
   res.json(receipts);
 });
 
+/**
+ * @openapi
+ * /receipts/summary:
+ *   get:
+ *     summary: 대시보드 집계 (이번 달 합계, 카테고리 비율, 전월 대비)
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *     responses:
+ *       200:
+ *         description: 집계 결과
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total: { type: integer }
+ *                 deltaPercent: { type: integer }
+ *                 byCategory:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       category: { type: string }
+ *                       amount: { type: integer }
+ *                       percent: { type: integer }
+ */
 // ⚠️ /summary는 /:id보다 반드시 먼저 등록 — 안 그러면 "summary"가 :id로 잘못 매칭됨
 receiptsRouter.get('/summary', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
@@ -58,6 +140,28 @@ receiptsRouter.get('/summary', async (req, res) => {
   res.json(buildSummary(thisMonth, lastMonth));
 });
 
+/**
+ * @openapi
+ * /receipts/{id}:
+ *   get:
+ *     summary: 영수증 단건 조회
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 영수증
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Receipt'
+ *       404:
+ *         description: 없거나 다른 device 소유
+ */
 receiptsRouter.get('/:id', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const receipt = await findReceiptById(deviceId, Number(req.params.id));
@@ -65,6 +169,41 @@ receiptsRouter.get('/:id', async (req, res) => {
   res.json(receipt);
 });
 
+/**
+ * @openapi
+ * /receipts/{id}:
+ *   patch:
+ *     summary: 영수증 수정 (부분 업데이트)
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               merchant: { type: string }
+ *               amount: { type: integer }
+ *               category: { type: string, enum: [food, transit, shop, culture, health, etc] }
+ *               rawText: { type: string }
+ *               date: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: 수정된 영수증
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Receipt'
+ *       400:
+ *         description: 입력값 검증 실패
+ *       404:
+ *         description: 없거나 다른 device 소유
+ */
 receiptsRouter.patch('/:id', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const errors = validateReceiptPatch(req.body);
@@ -81,6 +220,24 @@ receiptsRouter.patch('/:id', async (req, res) => {
   res.json(receipt);
 });
 
+/**
+ * @openapi
+ * /receipts/{id}:
+ *   delete:
+ *     summary: 영수증 삭제
+ *     tags: [receipts]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceId'
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       204:
+ *         description: 삭제됨
+ *       404:
+ *         description: 없거나 다른 device 소유
+ */
 receiptsRouter.delete('/:id', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const deleted = await deleteReceipt(deviceId, Number(req.params.id));

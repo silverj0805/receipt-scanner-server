@@ -54,6 +54,10 @@ npm start       # 프로덕션 실행
 
 `DATABASE_URL` 환경변수 필요 — `.env.example`을 `.env`로 복사해서 사용 (예: `file:./dev.db`).
 
+## API 문서
+
+서버 실행 후 `/docs`에서 Swagger UI로 확인 가능 (예: `http://localhost:3000/docs`, 배포 환경은 `https://receipt-scanner-server-8ff7.onrender.com/docs`). `swagger-jsdoc`으로 각 라우트 파일의 JSDoc 주석에서 스펙을 생성하므로 코드와 문서가 어긋나지 않음. 스펙 원본은 `/openapi.json`.
+
 ## 아키텍처
 
 구조/객체/시퀀스/유스케이스 다이어그램은 [docs/architecture.md](docs/architecture.md) 참고.

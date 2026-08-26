@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { receiptsRouter } from './apps/receipts/entry-points/api/receipts.routes.js';
 import { categoriesRouter } from './apps/categories/entry-points/api/categories.routes.js';
+import { swaggerSpec } from './libraries/swagger.js';
 
 export const app = express();
 
@@ -15,6 +17,9 @@ app.get('/', (_req, res) => {
 
 app.use('/receipts', receiptsRouter);
 app.use('/categories', categoriesRouter);
+
+app.get('/openapi.json', (_req, res) => res.json(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 예상 못한 에러(500)는 항상 이 핸들러를 거침 — NODE_ENV 설정 여부와 무관하게
 // 스택트레이스/에러 상세를 응답에 절대 노출하지 않고 서버 로그에만 남김.
