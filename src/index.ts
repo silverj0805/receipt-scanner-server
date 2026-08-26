@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { receiptsRouter } from './apps/receipts/entry-points/api/receipts.routes';
+import { receiptsRouter } from './apps/receipts/entry-points/api/receipts.routes.js';
 
 const app = express();
 
