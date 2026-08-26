@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
 import { parseTake, parseSkip } from '../../domain/pagination.util.js';
+import { validateReceiptCreate, validateReceiptPatch } from '../../domain/receipt-validation.util.js';
 import {
   createReceipt,
   findAllReceipts,
@@ -24,6 +25,8 @@ receiptsRouter.use((req, res, next) => {
 
 receiptsRouter.post('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
+  const errors = validateReceiptCreate(req.body);
+  if (errors.length > 0) return res.status(400).json({ errors });
   const { merchant, amount, category, rawText, date } = req.body;
   const receipt = await createReceipt({
     deviceId,
@@ -64,6 +67,8 @@ receiptsRouter.get('/:id', async (req, res) => {
 
 receiptsRouter.patch('/:id', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
+  const errors = validateReceiptPatch(req.body);
+  if (errors.length > 0) return res.status(400).json({ errors });
   const { merchant, amount, rawText, date, category } = req.body;
   const data: Record<string, unknown> = {};
   if (merchant !== undefined) data.merchant = merchant;

@@ -16,6 +16,39 @@ test('X-Device-Id 헤더가 없으면 400을 반환한다', async () => {
   assert.equal(res.status, 400);
 });
 
+test('POST /receipts: category가 유효하지 않으면 400을 반환한다', async () => {
+  const res = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'not-a-category', date: '2026-08-20' });
+
+  assert.equal(res.status, 400);
+  assert.ok(Array.isArray(res.body.errors));
+});
+
+test('POST /receipts: amount가 음수면 400을 반환한다', async () => {
+  const res = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: -100, category: 'food', date: '2026-08-20' });
+
+  assert.equal(res.status, 400);
+});
+
+test('PATCH /receipts/:id: amount가 음수면 400을 반환한다', async () => {
+  const created = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2026-08-20' });
+
+  const res = await request(app)
+    .patch(`/receipts/${created.body.id}`)
+    .set('X-Device-Id', DEVICE_A)
+    .send({ amount: -1 });
+
+  assert.equal(res.status, 400);
+});
+
 test('POST /receipts: 요청 바디의 category를 그대로 저장한다', async () => {
   const res = await request(app)
     .post('/receipts')
