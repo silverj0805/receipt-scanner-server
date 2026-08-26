@@ -17,3 +17,7 @@ export function findAllReceipts() {
 export function findReceiptsByDateRange(start: Date, end: Date) {
   return prisma.receipt.findMany({ where: { date: { gte: start, lt: end } } });
 }
+
+export function findReceiptById(id: number) {
+  return prisma.receipt.findUnique({ where: { id } });
+}

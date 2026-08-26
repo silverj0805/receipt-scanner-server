@@ -5,6 +5,7 @@ import {
   createReceipt,
   findAllReceipts,
   findReceiptsByDateRange,
+  findReceiptById,
 } from '../../data-access/receipts.repository.js';
 
 export const receiptsRouter = Router();
@@ -31,4 +32,10 @@ receiptsRouter.get('/summary', async (_req, res) => {
   res.json(buildSummary(thisMonth, lastMonth));
 });
 
-// Task 5부터 이 라우터에 라우트가 이어서 추가됨 (GET /:id, PATCH /:id, DELETE /:id)
+receiptsRouter.get('/:id', async (req, res) => {
+  const receipt = await findReceiptById(Number(req.params.id));
+  if (!receipt) return res.status(404).json({ error: 'Not found' });
+  res.json(receipt);
+});
+
+// Task 6부터 이 라우터에 라우트가 이어서 추가됨 (PATCH /:id, DELETE /:id)
