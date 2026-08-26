@@ -7,6 +7,7 @@ import {
   findReceiptsByDateRange,
   findReceiptById,
   updateReceipt,
+  deleteReceipt,
 } from '../../data-access/receipts.repository.js';
 
 export const receiptsRouter = Router();
@@ -51,4 +52,7 @@ receiptsRouter.patch('/:id', async (req, res) => {
   res.json(receipt);
 });
 
-// Task 7부터 이 라우터에 라우트가 이어서 추가됨 (DELETE /:id)
+receiptsRouter.delete('/:id', async (req, res) => {
+  await deleteReceipt(Number(req.params.id));
+  res.status(204).send();
+});

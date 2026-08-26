@@ -34,3 +34,7 @@ export function updateReceipt(
 ) {
   return prisma.receipt.update({ where: { id }, data });
 }
+
+export function deleteReceipt(id: number) {
+  return prisma.receipt.delete({ where: { id } });
+}
