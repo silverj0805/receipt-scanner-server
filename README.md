@@ -17,11 +17,15 @@
 receipt-scanner-server/
 ├─ src/
 │  ├─ apps/                  # 비즈니스 컴포넌트 (도메인별 폴더)
-│  │  └─ receipts/           # 영수증 컴포넌트
+│  │  ├─ receipts/           # 영수증 컴포넌트
+│  │  │  ├─ entry-points/    # HTTP 요청을 받는 라우팅 계층
+│  │  │  │  └─ api/
+│  │  │  ├─ domain/          # 순수 비즈니스 로직 (대시보드 집계, 페이지네이션 등)
+│  │  │  └─ data-access/     # DB 접근 계층 (Prisma 쿼리 래핑)
+│  │  └─ categories/         # 카테고리 컴포넌트 (정적 메타데이터, DB 미사용)
 │  │     ├─ entry-points/    # HTTP 요청을 받는 라우팅 계층
 │  │     │  └─ api/
-│  │     ├─ domain/          # 순수 비즈니스 로직 (대시보드 집계, 페이지네이션 등)
-│  │     └─ data-access/     # DB 접근 계층 (Prisma 쿼리 래핑)
+│  │     └─ domain/          # 카테고리 목록(라벨/색상) 상수
 │  └─ libraries/             # 컴포넌트 간 공용/범용 기능 (DB 클라이언트 등)
 ├─ prisma/
 │  └─ migrations/            # DB 스키마 변경 이력

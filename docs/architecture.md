@@ -46,11 +46,24 @@ classDiagram
         +DateTime createdAt
     }
 
+    class categoriesRouter {
+        <<entry-points/api, apps/categories>>
+        +GET /
+    }
+
+    class categoryConstants {
+        <<domain, apps/categories>>
+        +CATEGORIES: Category[]
+    }
+
     receiptsRouter --> summaryUtil : uses
     receiptsRouter --> receiptsRepository : uses
     receiptsRepository --> prisma : uses
     prisma --> Receipt : persists
+    categoriesRouter --> categoryConstants : uses
 ```
+
+`categoriesRouter`는 `receipts`와 별개 컴포넌트(`apps/categories/`)로 분리 — DB에 의존하지 않는 정적 메타데이터(라벨/색상)만 반환하므로 `data-access` 계층 없이 `entry-points`+`domain`만 존재.
 
 ## 2. 객체 다이어그램 (Object Diagram)
 
@@ -141,6 +154,7 @@ flowchart LR
         UC5[영수증 삭제]
         UC6[대시보드 요약 조회]
         UC7[카테고리별 필터링]
+        UC8[카테고리 목록 조회]
     end
     U --- UC1
     U --- UC2
@@ -149,6 +163,7 @@ flowchart LR
     U --- UC5
     U --- UC6
     U --- UC7
+    U --- UC8
 ```
 
 ## 5. ERD
