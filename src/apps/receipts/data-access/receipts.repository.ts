@@ -1,6 +1,7 @@
 import { prisma } from '../../../libraries/db.js';
 
 export function createReceipt(data: {
+  deviceId: string;
   merchant: string;
   amount: number;
   category: string;
@@ -10,19 +11,20 @@ export function createReceipt(data: {
   return prisma.receipt.create({ data });
 }
 
-export function findAllReceipts(take: number, skip: number) {
-  return prisma.receipt.findMany({ orderBy: { date: 'desc' }, take, skip });
+export function findAllReceipts(deviceId: string, take: number, skip: number) {
+  return prisma.receipt.findMany({ where: { deviceId }, orderBy: { date: 'desc' }, take, skip });
 }
 
-export function findReceiptsByDateRange(start: Date, end: Date) {
-  return prisma.receipt.findMany({ where: { date: { gte: start, lt: end } } });
+export function findReceiptsByDateRange(deviceId: string, start: Date, end: Date) {
+  return prisma.receipt.findMany({ where: { deviceId, date: { gte: start, lt: end } } });
 }
 
-export function findReceiptById(id: number) {
-  return prisma.receipt.findUnique({ where: { id } });
+export function findReceiptById(deviceId: string, id: number) {
+  return prisma.receipt.findFirst({ where: { id, deviceId } });
 }
 
-export function updateReceipt(
+export async function updateReceipt(
+  deviceId: string,
   id: number,
   data: Partial<{
     merchant: string;
@@ -32,9 +34,14 @@ export function updateReceipt(
     date: Date;
   }>,
 ) {
+  const existing = await prisma.receipt.findFirst({ where: { id, deviceId } });
+  if (!existing) return null;
   return prisma.receipt.update({ where: { id }, data });
 }
 
-export function deleteReceipt(id: number) {
-  return prisma.receipt.delete({ where: { id } });
+export async function deleteReceipt(deviceId: string, id: number) {
+  const existing = await prisma.receipt.findFirst({ where: { id, deviceId } });
+  if (!existing) return false;
+  await prisma.receipt.delete({ where: { id } });
+  return true;
 }

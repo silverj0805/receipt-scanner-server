@@ -27,8 +27,11 @@ classDiagram
     class receiptsRepository {
         <<data-access>>
         +createReceipt(data) Receipt
-        +findAllReceipts() Receipt[]
-        +findReceiptsByDateRange(start, end) Receipt[]
+        +findAllReceipts(deviceId, take, skip) Receipt[]
+        +findReceiptsByDateRange(deviceId, start, end) Receipt[]
+        +findReceiptById(deviceId, id) Receipt?
+        +updateReceipt(deviceId, id, data) Receipt?
+        +deleteReceipt(deviceId, id) bool
     }
 
     class prisma {
@@ -38,6 +41,7 @@ classDiagram
 
     class Receipt {
         +Int id
+        +String deviceId
         +String merchant
         +Int amount
         +String category
@@ -112,7 +116,7 @@ sequenceDiagram
     Native-->>App: rawText (OCR 결과)
     App->>App: 정규식으로 금액/날짜 1차 파싱
     U->>App: 카테고리 칩 선택 후 저장하기
-    App->>API: POST /receipts { merchant, amount, category, rawText, date }
+    App->>API: POST /receipts (X-Device-Id 헤더) { merchant, amount, category, rawText, date }
     API->>Repo: createReceipt(data)
     Repo->>DB: INSERT Receipt
     DB-->>Repo: 저장된 Receipt
@@ -132,8 +136,8 @@ sequenceDiagram
     participant Sum as summary.util
 
     U->>App: 홈 화면 진입
-    App->>API: GET /receipts/summary
-    API->>Repo: findReceiptsByDateRange(이번달), findReceiptsByDateRange(지난달)
+    App->>API: GET /receipts/summary (X-Device-Id 헤더)
+    API->>Repo: findReceiptsByDateRange(deviceId, 이번달), findReceiptsByDateRange(deviceId, 지난달)
     Repo-->>API: Receipt[], Receipt[]
     API->>Sum: buildSummary(thisMonth, lastMonth)
     Sum-->>API: { total, deltaPercent, byCategory[] }
@@ -172,6 +176,7 @@ flowchart LR
 erDiagram
     RECEIPT {
         int id PK
+        string deviceId "로그인 없이 X-Device-Id 헤더로 스코프"
         string merchant
         int amount
         string category
