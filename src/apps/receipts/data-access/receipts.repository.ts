@@ -13,3 +13,7 @@ export function createReceipt(data: {
 export function findAllReceipts() {
   return prisma.receipt.findMany({ orderBy: { date: 'desc' } });
 }
+
+export function findReceiptsByDateRange(start: Date, end: Date) {
+  return prisma.receipt.findMany({ where: { date: { gte: start, lt: end } } });
+}

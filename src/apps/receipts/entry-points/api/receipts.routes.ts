@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { classifyCategory } from '../../domain/category.util.js';
-import { createReceipt, findAllReceipts } from '../../data-access/receipts.repository.js';
+import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
+import {
+  createReceipt,
+  findAllReceipts,
+  findReceiptsByDateRange,
+} from '../../data-access/receipts.repository.js';
 
 export const receiptsRouter = Router();
 
@@ -16,4 +21,14 @@ receiptsRouter.get('/', async (_req, res) => {
   res.json(receipts);
 });
 
-// Task 4부터 이 라우터에 라우트가 이어서 추가됨 (GET /summary, GET /:id, PATCH /:id, DELETE /:id)
+// ⚠️ /summary는 /:id보다 반드시 먼저 등록 — 안 그러면 "summary"가 :id로 잘못 매칭됨
+receiptsRouter.get('/summary', async (_req, res) => {
+  const { startOfThisMonth, startOfNextMonth, startOfLastMonth } = getMonthRanges();
+  const [thisMonth, lastMonth] = await Promise.all([
+    findReceiptsByDateRange(startOfThisMonth, startOfNextMonth),
+    findReceiptsByDateRange(startOfLastMonth, startOfThisMonth),
+  ]);
+  res.json(buildSummary(thisMonth, lastMonth));
+});
+
+// Task 5부터 이 라우터에 라우트가 이어서 추가됨 (GET /:id, PATCH /:id, DELETE /:id)
