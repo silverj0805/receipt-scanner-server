@@ -26,6 +26,7 @@ export const swaggerSpec = swaggerJsdoc({
             id: { type: 'integer' },
             deviceId: { type: 'string' },
             merchant: { type: 'string' },
+            itemName: { type: 'string', nullable: true, description: '무엇을 샀는지(상품명), 선택 입력' },
             amount: { type: 'integer' },
             category: { type: 'string', enum: ['food', 'transit', 'shop', 'culture', 'health', 'etc'] },
             rawText: { type: 'string', nullable: true },

@@ -38,6 +38,19 @@ test('validateReceiptCreate: 바디가 객체가 아니면 에러', () => {
   assert.ok(errors.length > 0);
 });
 
+test('validateReceiptCreate: itemName 없어도 통과한다 (선택 입력)', () => {
+  assert.deepEqual(validateReceiptCreate(VALID), []);
+});
+
+test('validateReceiptCreate: itemName이 문자열이면 통과한다', () => {
+  assert.deepEqual(validateReceiptCreate({ ...VALID, itemName: '아메리카노' }), []);
+});
+
+test('validateReceiptCreate: itemName이 문자열이 아니면 에러', () => {
+  const errors = validateReceiptCreate({ ...VALID, itemName: 123 });
+  assert.ok(errors.some((e) => e.includes('itemName')));
+});
+
 test('validateReceiptPatch: 빈 객체는 통과한다 (수정할 필드 없음)', () => {
   assert.deepEqual(validateReceiptPatch({}), []);
 });

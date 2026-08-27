@@ -35,6 +35,42 @@ test('POST /receipts: amount가 음수면 400을 반환한다', async () => {
   assert.equal(res.status, 400);
 });
 
+test('POST /receipts: itemName 없이도 생성된다 (선택 입력)', async () => {
+  const res = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2026-08-20' });
+
+  assert.equal(res.status, 201);
+  assert.equal(res.body.itemName, null);
+});
+
+test('POST /receipts: itemName을 보내면 저장된다', async () => {
+  const res = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: '스타벅스', itemName: '아메리카노', amount: 4500, category: 'food', date: '2026-08-20' });
+
+  assert.equal(res.status, 201);
+  assert.equal(res.body.itemName, '아메리카노');
+});
+
+test('PATCH /receipts/:id: itemName만 수정한다', async () => {
+  const created = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2026-08-20' });
+
+  const res = await request(app)
+    .patch(`/receipts/${created.body.id}`)
+    .set('X-Device-Id', DEVICE_A)
+    .send({ itemName: '샴푸' });
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.itemName, '샴푸');
+  assert.equal(res.body.amount, 1000);
+});
+
 test('PATCH /receipts/:id: amount가 음수면 400을 반환한다', async () => {
   const created = await request(app)
     .post('/receipts')

@@ -40,6 +40,7 @@ receiptsRouter.use((req, res, next) => {
  *             required: [merchant, amount, category, date]
  *             properties:
  *               merchant: { type: string }
+ *               itemName: { type: string, description: "무엇을 샀는지(상품명), 선택 입력" }
  *               amount: { type: integer }
  *               category: { type: string, enum: [food, transit, shop, culture, health, etc] }
  *               rawText: { type: string }
@@ -58,10 +59,11 @@ receiptsRouter.post('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const errors = validateReceiptCreate(req.body);
   if (errors.length > 0) return res.status(400).json({ errors });
-  const { merchant, amount, category, rawText, date } = req.body;
+  const { merchant, itemName, amount, category, rawText, date } = req.body;
   const receipt = await createReceipt({
     deviceId,
     merchant,
+    itemName,
     amount,
     category,
     rawText,
@@ -188,6 +190,7 @@ receiptsRouter.get('/:id', async (req, res) => {
  *             type: object
  *             properties:
  *               merchant: { type: string }
+ *               itemName: { type: string, description: "무엇을 샀는지(상품명), 선택 입력" }
  *               amount: { type: integer }
  *               category: { type: string, enum: [food, transit, shop, culture, health, etc] }
  *               rawText: { type: string }
@@ -208,9 +211,10 @@ receiptsRouter.patch('/:id', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const errors = validateReceiptPatch(req.body);
   if (errors.length > 0) return res.status(400).json({ errors });
-  const { merchant, amount, rawText, date, category } = req.body;
+  const { merchant, itemName, amount, rawText, date, category } = req.body;
   const data: Record<string, unknown> = {};
   if (merchant !== undefined) data.merchant = merchant;
+  if (itemName !== undefined) data.itemName = itemName;
   if (amount !== undefined) data.amount = amount;
   if (rawText !== undefined) data.rawText = rawText;
   if (date !== undefined) data.date = new Date(date);

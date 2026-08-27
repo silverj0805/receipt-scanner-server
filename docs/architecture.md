@@ -43,6 +43,7 @@ classDiagram
         +Int id
         +String deviceId
         +String merchant
+        +String? itemName
         +Int amount
         +String category
         +String? rawText
@@ -78,6 +79,7 @@ classDiagram
     class r1["r1 : Receipt"] {
         id = 1
         merchant = "스타벅스 강남점"
+        itemName = "아메리카노"
         amount = 12400
         category = "food"
         date = 2026-08-20
@@ -116,7 +118,7 @@ sequenceDiagram
     Native-->>App: rawText (OCR 결과)
     App->>App: 정규식으로 금액/날짜 1차 파싱
     U->>App: 카테고리 칩 선택 후 저장하기
-    App->>API: POST /receipts (X-Device-Id 헤더) { merchant, amount, category, rawText, date }
+    App->>API: POST /receipts (X-Device-Id 헤더) { merchant, itemName?, amount, category, rawText, date }
     API->>Repo: createReceipt(data)
     Repo->>DB: INSERT Receipt
     DB-->>Repo: 저장된 Receipt
@@ -178,6 +180,7 @@ erDiagram
         int id PK
         string deviceId "로그인 없이 X-Device-Id 헤더로 스코프"
         string merchant
+        string itemName "선택 입력 — 무엇을 샀는지"
         int amount
         string category
         string rawText

@@ -16,6 +16,7 @@ model Receipt {
   id        Int      @id @default(autoincrement())
   deviceId  String
   merchant  String
+  itemName  String?
   amount    Int
   category  String
   rawText   String?

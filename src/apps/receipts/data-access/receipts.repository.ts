@@ -3,6 +3,7 @@ import { prisma } from '../../../libraries/db.js';
 export function createReceipt(data: {
   deviceId: string;
   merchant: string;
+  itemName?: string;
   amount: number;
   category: string;
   rawText?: string;
@@ -28,6 +29,7 @@ export async function updateReceipt(
   id: number,
   data: Partial<{
     merchant: string;
+    itemName: string;
     amount: number;
     category: string;
     rawText: string;

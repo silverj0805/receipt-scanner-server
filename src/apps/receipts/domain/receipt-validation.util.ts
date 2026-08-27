@@ -18,7 +18,7 @@ function isValidDate(v: unknown): boolean {
   return typeof v === 'string' && !Number.isNaN(new Date(v).getTime());
 }
 
-function isValidRawText(v: unknown): boolean {
+function isValidOptionalString(v: unknown): boolean {
   return v === undefined || typeof v === 'string';
 }
 
@@ -33,7 +33,8 @@ export function validateReceiptCreate(body: unknown): string[] {
   if (!isValidAmount(b.amount)) errors.push('amount는 0보다 큰 숫자여야 합니다.');
   if (!isValidCategory(b.category)) errors.push(CATEGORY_ERROR);
   if (!isValidDate(b.date)) errors.push('date는 올바른 날짜 문자열이어야 합니다.');
-  if (!isValidRawText(b.rawText)) errors.push('rawText는 문자열이어야 합니다.');
+  if (!isValidOptionalString(b.rawText)) errors.push('rawText는 문자열이어야 합니다.');
+  if (!isValidOptionalString(b.itemName)) errors.push('itemName은 문자열이어야 합니다.');
 
   return errors;
 }
@@ -55,8 +56,11 @@ export function validateReceiptPatch(body: unknown): string[] {
   if (b.date !== undefined && !isValidDate(b.date)) {
     errors.push('date는 올바른 날짜 문자열이어야 합니다.');
   }
-  if (!isValidRawText(b.rawText)) {
+  if (!isValidOptionalString(b.rawText)) {
     errors.push('rawText는 문자열이어야 합니다.');
+  }
+  if (!isValidOptionalString(b.itemName)) {
+    errors.push('itemName은 문자열이어야 합니다.');
   }
 
   return errors;
