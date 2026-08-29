@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
 import { parseTake, parseSkip } from '../../domain/pagination.util.js';
 import { validateReceiptCreate, validateReceiptPatch } from '../../domain/receipt-validation.util.js';
+import { parseReceiptFilters } from '../../domain/receipt-filter.util.js';
 import {
   createReceipt,
   findAllReceipts,
@@ -86,6 +87,16 @@ receiptsRouter.post('/', async (req, res) => {
  *       - name: skip
  *         in: query
  *         schema: { type: integer, default: 0 }
+ *       - name: category
+ *         in: query
+ *         description: >
+ *           콤마로 구분한 카테고리 id 목록(최대 5개 다중선택 — 6개 모두 넘겨도 필터링 안 한 것과 결과가 같음).
+ *           생략하면 전체 카테고리.
+ *         schema: { type: string, example: "food,transit" }
+ *       - name: month
+ *         in: query
+ *         description: "YYYY-MM 형식. 생략하면 전체 기간."
+ *         schema: { type: string, example: "2026-08" }
  *     responses:
  *       200:
  *         description: 영수증 목록 (id/merchant/itemName/amount/date/category만 — 상세는 GET /receipts/{id} 참고)
@@ -95,12 +106,16 @@ receiptsRouter.post('/', async (req, res) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/ReceiptListItem'
+ *       400:
+ *         description: category 또는 month 값이 올바르지 않음
  */
 receiptsRouter.get('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;
   const take = parseTake(req.query.take);
   const skip = parseSkip(req.query.skip);
-  const receipts = await findAllReceipts(deviceId, take, skip);
+  const { filters, errors } = parseReceiptFilters({ category: req.query.category, month: req.query.month });
+  if (errors.length > 0) return res.status(400).json({ errors });
+  const receipts = await findAllReceipts(deviceId, take, skip, filters);
   res.json(receipts);
 });
 

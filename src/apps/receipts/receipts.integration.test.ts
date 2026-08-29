@@ -234,3 +234,112 @@ test('GET /receipts/summary: 이번 달 영수증만 집계한다', async () => 
   assert.equal(res.status, 200);
   assert.equal(res.body.total, 10000);
 });
+
+test('GET /receipts?category=: 지정한 카테고리 하나만 반환한다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2025-01-10' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'B', amount: 2000, category: 'transit', date: '2025-01-11' });
+
+  const res = await request(app).get('/receipts?category=food').set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.length, 1);
+  assert.equal(res.body[0].category, 'food');
+});
+
+test('GET /receipts?category=: 콤마로 여러 개 넘기면 해당 카테고리들만 반환한다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2025-01-10' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'B', amount: 2000, category: 'transit', date: '2025-01-11' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'C', amount: 3000, category: 'shop', date: '2025-01-12' });
+
+  const res = await request(app).get('/receipts?category=food,transit').set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.deepEqual(
+    res.body.map((r: { category: string }) => r.category).sort(),
+    ['food', 'transit'],
+  );
+});
+
+test('GET /receipts?category=: 6개(전체) 다 넘기면 필터 없는 것과 결과가 같다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', amount: 1000, category: 'food', date: '2025-01-10' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'B', amount: 2000, category: 'etc', date: '2025-01-11' });
+
+  const res = await request(app)
+    .get('/receipts?category=food,transit,shop,culture,health,etc')
+    .set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.length, 2);
+});
+
+test('GET /receipts?category=: 유효하지 않은 카테고리면 400을 반환한다', async () => {
+  const res = await request(app).get('/receipts?category=food,invalid').set('X-Device-Id', DEVICE_A);
+  assert.equal(res.status, 400);
+  assert.ok(Array.isArray(res.body.errors));
+});
+
+test('GET /receipts?month=: 해당 월의 영수증만 반환한다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'Jan', amount: 1000, category: 'food', date: '2025-01-15' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'Feb', amount: 2000, category: 'food', date: '2025-02-15' });
+
+  const res = await request(app).get('/receipts?month=2025-01').set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.length, 1);
+  assert.equal(res.body[0].merchant, 'Jan');
+});
+
+test('GET /receipts?month=: 형식이 잘못되면 400을 반환한다', async () => {
+  const res = await request(app).get('/receipts?month=2025/01').set('X-Device-Id', DEVICE_A);
+  assert.equal(res.status, 400);
+});
+
+test('GET /receipts?category=&month=: 두 필터를 함께 적용한다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'JanFood', amount: 1000, category: 'food', date: '2025-01-10' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'JanTransit', amount: 2000, category: 'transit', date: '2025-01-11' });
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'FebFood', amount: 3000, category: 'food', date: '2025-02-10' });
+
+  const res = await request(app)
+    .get('/receipts?category=food&month=2025-01')
+    .set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.length, 1);
+  assert.equal(res.body[0].merchant, 'JanFood');
+});
