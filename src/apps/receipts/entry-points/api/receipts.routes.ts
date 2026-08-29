@@ -88,13 +88,13 @@ receiptsRouter.post('/', async (req, res) => {
  *         schema: { type: integer, default: 0 }
  *     responses:
  *       200:
- *         description: 영수증 목록
+ *         description: 영수증 목록 (id/merchant/itemName/amount/date/category만 — 상세는 GET /receipts/{id} 참고)
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Receipt'
+ *                 $ref: '#/components/schemas/ReceiptListItem'
  */
 receiptsRouter.get('/', async (req, res) => {
   const deviceId = req.header('X-Device-Id')!;

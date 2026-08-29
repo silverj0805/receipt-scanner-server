@@ -115,6 +115,21 @@ test('GET /receipts: 생성한 영수증이 목록에 포함된다', async () =>
   assert.equal(res.body[0].merchant, 'A');
 });
 
+test('GET /receipts: 목록에는 id/merchant/itemName/amount/date/category만 내려온다', async () => {
+  await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: 'A', itemName: '아메리카노', amount: 1000, category: 'etc', date: '2026-08-01' });
+
+  const res = await request(app).get('/receipts').set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.deepEqual(
+    Object.keys(res.body[0]).sort(),
+    ['amount', 'category', 'date', 'id', 'itemName', 'merchant'],
+  );
+});
+
 test('GET /receipts: 다른 deviceId의 영수증은 보이지 않는다', async () => {
   await request(app)
     .post('/receipts')

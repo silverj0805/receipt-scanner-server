@@ -13,7 +13,13 @@ export function createReceipt(data: {
 }
 
 export function findAllReceipts(deviceId: string, take: number, skip: number) {
-  return prisma.receipt.findMany({ where: { deviceId }, orderBy: { date: 'desc' }, take, skip });
+  return prisma.receipt.findMany({
+    where: { deviceId },
+    orderBy: { date: 'desc' },
+    take,
+    skip,
+    select: { id: true, merchant: true, itemName: true, amount: true, date: true, category: true },
+  });
 }
 
 export function findReceiptsByDateRange(deviceId: string, start: Date, end: Date) {

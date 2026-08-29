@@ -34,6 +34,18 @@ export const swaggerSpec = swaggerJsdoc({
             createdAt: { type: 'string', format: 'date-time' },
           },
         },
+        ReceiptListItem: {
+          type: 'object',
+          description: '목록 조회에서는 상세 필드(deviceId/rawText/createdAt)를 빼고 리스트 렌더링에 필요한 필드만 내려줌',
+          properties: {
+            id: { type: 'integer' },
+            merchant: { type: 'string' },
+            itemName: { type: 'string', nullable: true },
+            amount: { type: 'integer' },
+            date: { type: 'string', format: 'date-time' },
+            category: { type: 'string', enum: ['food', 'transit', 'shop', 'culture', 'health', 'etc'] },
+          },
+        },
         Category: {
           type: 'object',
           properties: {
