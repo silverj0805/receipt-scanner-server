@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { buildSummary, getMonthRanges } from '../../domain/summary.util.js';
-import { parseTake, parseSkip } from '../../domain/pagination.util.js';
-import { validateReceiptCreate, validateReceiptPatch } from '../../domain/receipt-validation.util.js';
-import { parseReceiptFilters } from '../../domain/receipt-filter.util.js';
+import { buildSummary, getMonthRanges } from '@/apps/receipts/domain/summary.util.js';
+import { parseTake, parseSkip } from '@/apps/receipts/domain/pagination.util.js';
+import { validateReceiptCreate, validateReceiptPatch } from '@/apps/receipts/domain/receipt-validation.util.js';
+import { parseReceiptFilters } from '@/apps/receipts/domain/receipt-filter.util.js';
 import {
   createReceipt,
   findAllReceipts,
@@ -10,7 +10,7 @@ import {
   findReceiptById,
   updateReceipt,
   deleteReceipt,
-} from '../../data-access/receipts.repository.js';
+} from '@/apps/receipts/data-access/receipts.repository.js';
 
 export const receiptsRouter = Router();
 

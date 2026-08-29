@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
-import { app } from '../../app.js';
+import { app } from '@/app.js';
 
 test('GET /categories: 6개 카테고리를 id/label과 함께 반환한다', async () => {
   const res = await request(app).get('/categories');

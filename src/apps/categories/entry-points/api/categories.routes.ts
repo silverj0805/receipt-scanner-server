@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CATEGORIES } from '../../domain/category.constants.js';
+import { CATEGORIES } from '@/apps/categories/domain/category.constants.js';
 
 export const categoriesRouter = Router();
 

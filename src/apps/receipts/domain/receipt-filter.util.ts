@@ -1,4 +1,4 @@
-import { CATEGORIES } from '../../categories/domain/category.constants.js';
+import { CATEGORIES } from '@/apps/categories/domain/category.constants.js';
 
 const VALID_CATEGORY_IDS = new Set<string>(CATEGORIES.map((c) => c.id));
 

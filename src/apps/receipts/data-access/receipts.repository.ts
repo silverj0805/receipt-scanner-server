@@ -1,5 +1,5 @@
-import { prisma } from '../../../libraries/db.js';
-import type { ReceiptFilters } from '../domain/receipt-filter.util.js';
+import { prisma } from '@/libraries/db.js';
+import type { ReceiptFilters } from '@/apps/receipts/domain/receipt-filter.util.js';
 
 export function createReceipt(data: {
   deviceId: string;

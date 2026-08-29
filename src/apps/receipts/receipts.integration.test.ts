@@ -1,8 +1,8 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
-import { app } from '../../app.js';
-import { prisma } from '../../libraries/db.js';
+import { app } from '@/app.js';
+import { prisma } from '@/libraries/db.js';
 
 const DEVICE_A = 'device-a';
 const DEVICE_B = 'device-b';
