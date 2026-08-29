@@ -25,7 +25,7 @@ receipt-scanner-server/
 │  │  └─ categories/         # 카테고리 컴포넌트 (정적 메타데이터, DB 미사용)
 │  │     ├─ entry-points/    # HTTP 요청을 받는 라우팅 계층
 │  │     │  └─ api/
-│  │     └─ domain/          # 카테고리 목록(라벨/색상) 상수
+│  │     └─ domain/          # 카테고리 목록(id/라벨) 상수 — 색상은 프론트 담당
 │  └─ libraries/             # 컴포넌트 간 공용/범용 기능 (DB 클라이언트 등)
 ├─ prisma/
 │  └─ migrations/            # DB 스키마 변경 이력

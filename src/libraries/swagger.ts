@@ -39,8 +39,6 @@ export const swaggerSpec = swaggerJsdoc({
           properties: {
             id: { type: 'string' },
             label: { type: 'string' },
-            bg: { type: 'string' },
-            color: { type: 'string' },
           },
         },
       },

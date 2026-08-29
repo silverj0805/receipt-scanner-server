@@ -68,7 +68,7 @@ classDiagram
     categoriesRouter --> categoryConstants : uses
 ```
 
-`categoriesRouter`는 `receipts`와 별개 컴포넌트(`apps/categories/`)로 분리 — DB에 의존하지 않는 정적 메타데이터(라벨/색상)만 반환하므로 `data-access` 계층 없이 `entry-points`+`domain`만 존재.
+`categoriesRouter`는 `receipts`와 별개 컴포넌트(`apps/categories/`)로 분리 — DB에 의존하지 않는 정적 메타데이터(id/라벨, 색상은 프론트 담당)만 반환하므로 `data-access` 계층 없이 `entry-points`+`domain`만 존재.
 
 ## 2. 객체 다이어그램 (Object Diagram)
 
