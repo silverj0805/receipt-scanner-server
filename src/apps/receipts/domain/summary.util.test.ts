@@ -13,25 +13,28 @@ test('buildSummary: 이번 달 합계를 계산한다', () => {
   assert.equal(result.total, 15000);
 });
 
-test('buildSummary: 지난달 합계가 0이면 deltaPercent는 0이다', () => {
+test('buildSummary: 지난달 합계가 0이면 deltaPercent는 0, deltaAmount는 이번달 합계 그대로다', () => {
   const result = buildSummary([{ amount: 10000, category: 'food' }], []);
   assert.equal(result.deltaPercent, 0);
+  assert.equal(result.deltaAmount, 10000);
 });
 
-test('buildSummary: 전월 대비 증가율을 계산한다', () => {
+test('buildSummary: 전월 대비 증가율/증가액을 계산한다', () => {
   const result = buildSummary(
     [{ amount: 12000, category: 'food' }],
     [{ amount: 10000, category: 'food' }],
   );
   assert.equal(result.deltaPercent, 20);
+  assert.equal(result.deltaAmount, 2000);
 });
 
-test('buildSummary: 전월 대비 감소율도 계산한다', () => {
+test('buildSummary: 전월 대비 감소율/감소액도 계산한다', () => {
   const result = buildSummary(
     [{ amount: 8000, category: 'food' }],
     [{ amount: 10000, category: 'food' }],
   );
   assert.equal(result.deltaPercent, -20);
+  assert.equal(result.deltaAmount, -2000);
 });
 
 test('buildSummary: 카테고리별 합계와 비율을 계산한다', () => {

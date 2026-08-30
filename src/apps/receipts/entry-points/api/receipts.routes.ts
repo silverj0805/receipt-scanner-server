@@ -136,6 +136,7 @@ receiptsRouter.get('/', async (req, res) => {
  *               type: object
  *               properties:
  *                 total: { type: integer }
+ *                 deltaAmount: { type: integer, description: "지난달보다 더/덜 쓴 금액(부호 있음, 예: +12000/-8000)" }
  *                 deltaPercent: { type: integer }
  *                 byCategory:
  *                   type: array
