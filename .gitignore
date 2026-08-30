@@ -3,6 +3,8 @@ node_modules
 .env
 
 /generated/prisma
+
+# SQLite 시절 잔재 파일 방지용 — 지금은 Postgres(Supabase)만 씀
 dev.db
 test.db
 

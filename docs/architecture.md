@@ -132,7 +132,7 @@ sequenceDiagram
     participant Native as NativeReceiptScanner (TurboModule)
     participant API as receiptsRouter
     participant Repo as receipts.repository
-    participant DB as SQLite (Prisma)
+    participant DB as PostgreSQL (Prisma, Supabase)
 
     U->>App: 영수증 촬영/선택
     App->>Native: scanText(imageUri)
