@@ -20,7 +20,10 @@ export function findAllReceipts(deviceId: string, take: number, skip: number, fi
       ...(filters.categories ? { category: { in: filters.categories } } : {}),
       ...(filters.monthRange ? { date: { gte: filters.monthRange.start, lt: filters.monthRange.end } } : {}),
     },
-    orderBy: { date: 'desc' },
+    // date만으로 정렬하면 같은 날짜인 행들 사이의 순서를 DB가 보장하지 않음
+    // (SQLite/Postgres 둘 다 동점 처리 순서 무보장) — id를 2차 정렬 키로 추가해
+    // 같은 날짜 안에서는 항상 최신 생성분(id가 큰 것)이 먼저 나오도록 고정.
+    orderBy: [{ date: 'desc' }, { id: 'desc' }],
     take,
     skip,
     select: { id: true, merchant: true, itemName: true, amount: true, date: true, category: true },
