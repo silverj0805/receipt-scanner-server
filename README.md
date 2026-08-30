@@ -5,8 +5,8 @@
 ## 기술 스택
 
 - **Express** — HTTP 서버 프레임워크
-- **Prisma** (driver adapter: `@prisma/adapter-better-sqlite3`) — ORM
-- **SQLite** — 파일 기반 DB
+- **Prisma** (driver adapter: `@prisma/adapter-pg`) — ORM
+- **PostgreSQL** ([Supabase](https://supabase.com) 관리형)
 - **TypeScript**
 
 ## 폴더 구조
@@ -67,6 +67,15 @@ npx tsx scripts/seed-via-api.ts YOUR-DEVICE-ID                                  
 BASE_URL=http://localhost:3000 npx tsx scripts/seed-via-api.ts YOUR-DEVICE-ID    # 다른 환경 지정
 ```
 
+## DB: PostgreSQL (Supabase)
+
+환경변수 2개가 필요 — Supabase 대시보드 **Connect → ORM → Prisma**에서 그대로 복사(`.env.example` 참고):
+
+- `DATABASE_URL` — 런타임 쿼리용 (transaction pooler, 6543, `pgbouncer=true`). `src/libraries/db.ts`의 `PrismaPg` adapter가 사용.
+- `DIRECT_URL` — `prisma migrate`/`generate` CLI 전용 (session pooler, 5432). `prisma7.config.ts`가 사용. transaction pooler는 마이그레이션에 필요한 세션 기능(advisory lock 등)을 지원하지 않아서 반드시 분리해야 함.
+
+`prisma/migrations.sqlite-archive/`에는 SQLite 시절 마이그레이션 이력이 그대로 보존되어 있음(Postgres로 옮기며 SQL 문법이 달라 이어서 쓸 수 없어 새로 시작 — `prisma/migrations/`가 현재 유효한 히스토리).
+
 ## 실행
 
 ```bash
@@ -75,7 +84,7 @@ npm run dev     # 개발 서버 (파일 변경 감지)
 npm start       # 프로덕션 실행
 ```
 
-`DATABASE_URL` 환경변수 필요 — `.env.example`을 `.env`로 복사해서 사용 (예: `file:./dev.db`).
+`.env.example`을 `.env`로 복사해서 `DATABASE_URL`/`DIRECT_URL` 채워서 사용 (위 "DB: PostgreSQL (Supabase)" 참고).
 
 ## API 문서
 

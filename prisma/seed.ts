@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { PrismaClient } from '../generated/prisma/client.js';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL! });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 // 데모/로컬 테스트용 더미 데이터 — 전부 같은 deviceId로 묶어서

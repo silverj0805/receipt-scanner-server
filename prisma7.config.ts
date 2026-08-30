@@ -9,6 +9,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"]!,
+    // migrate/generate 등 CLI 명령은 여기서 연결함 — transaction pooler(DATABASE_URL, pgbouncer)는
+    // 마이그레이션에 필요한 세션 기능(advisory lock 등)을 지원하지 않아서 반드시 DIRECT_URL(session pooler) 사용.
+    url: process.env["DIRECT_URL"]!,
   },
 });
