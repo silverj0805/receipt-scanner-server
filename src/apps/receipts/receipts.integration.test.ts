@@ -130,6 +130,23 @@ test('GET /receipts: 목록에는 id/merchant/itemName/amount/date/category만 �
   );
 });
 
+test('GET /receipts: 같은 날짜인 영수증들은 최신 생성분(id가 큰 것)부터 나온다', async () => {
+  const first = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: '먼저 생성', amount: 1000, category: 'etc', date: '2026-08-15' });
+  const second = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({ merchant: '나중 생성', amount: 2000, category: 'etc', date: '2026-08-15' });
+
+  const res = await request(app).get('/receipts').set('X-Device-Id', DEVICE_A);
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body[0].id, second.body.id);
+  assert.equal(res.body[1].id, first.body.id);
+});
+
 test('GET /receipts: 다른 deviceId의 영수증은 보이지 않는다', async () => {
   await request(app)
     .post('/receipts')
