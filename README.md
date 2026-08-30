@@ -76,6 +76,8 @@ BASE_URL=http://localhost:3000 npx tsx scripts/seed-via-api.ts YOUR-DEVICE-ID   
 
 `prisma/migrations.sqlite-archive/`에는 SQLite 시절 마이그레이션 이력이 그대로 보존되어 있음(Postgres로 옮기며 SQL 문법이 달라 이어서 쓸 수 없어 새로 시작 — `prisma/migrations/`가 현재 유효한 히스토리).
 
+⚠️ **로컬용 Supabase 프로젝트를 프로덕션과 반드시 분리할 것.** 같은 프로젝트를 쓰면 로컬에서 `npm run dev`로 띄운 서버의 `/debug/reset`(deviceId 무관 전체 삭제)이 프로덕션 데이터까지 그대로 지워버림 — SQLite 시절엔 로컬 `dev.db` 파일만 지웠기 때문에 안전했지만, Postgres에서는 로컬/프로덕션이 물리적으로 같은 DB면 이 구분이 사라짐. 그래서 로컬 개발용 Supabase 프로젝트를 프로덕션과 별도로 하나 더 만들어서 `.env`는 그쪽을 보게 하고, Render 배포 환경변수만 프로덕션 프로젝트를 보도록 유지함(무료 티어 프로젝트 2개까지 가능).
+
 ## 실행
 
 ```bash
