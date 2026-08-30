@@ -22,10 +22,14 @@ receipt-scanner-server/
 │  │  │  │  └─ api/
 │  │  │  ├─ domain/          # 순수 비즈니스 로직 (대시보드 집계, 페이지네이션 등)
 │  │  │  └─ data-access/     # DB 접근 계층 (Prisma 쿼리 래핑)
-│  │  └─ categories/         # 카테고리 컴포넌트 (정적 메타데이터, DB 미사용)
-│  │     ├─ entry-points/    # HTTP 요청을 받는 라우팅 계층
-│  │     │  └─ api/
-│  │     └─ domain/          # 카테고리 목록(id/라벨) 상수 — 색상은 프론트 담당
+│  │  ├─ categories/         # 카테고리 컴포넌트 (정적 메타데이터, DB 미사용)
+│  │  │  ├─ entry-points/    # HTTP 요청을 받는 라우팅 계층
+│  │  │  │  └─ api/
+│  │  │  └─ domain/          # 카테고리 목록(id/라벨) 상수 — 색상은 프론트 담당
+│  │  └─ debug/               # 개발용 디버그 컴포넌트 (DB 리셋/더미 시딩, 로컬 전용만 마운트)
+│  │     ├─ entry-points/api/
+│  │     ├─ domain/           # 더미 데이터 템플릿, 환경 마운트 여부 판단
+│  │     └─ data-access/
 │  └─ libraries/             # 컴포넌트 간 공용/범용 기능 (DB 클라이언트 등)
 ├─ prisma/
 │  └─ migrations/            # DB 스키마 변경 이력
@@ -43,6 +47,25 @@ receipt-scanner-server/
 로그인 기능은 없지만, 모든 사용자가 데이터를 공유하지는 않습니다. `/receipts` 하위 API는 요청마다 `X-Device-Id` 헤더(클라이언트가 최초 실행 시 생성해 저장해두는 UUID)를 요구하고, 서버는 모든 조회/수정/삭제를 해당 `deviceId`로 스코프합니다 — 헤더가 없으면 `400`, 다른 device가 만든 리소스에 접근하면 `404`.
 
 ⚠️ **진짜 인증은 아닙니다.** 헤더는 클라이언트가 임의로 바꿔 보낼 수 있어서 악의적인 접근을 막지는 못함 — 일반적인 사용(각자 자기 기기로 씀)에서 "내 영수증만 보인다"를 만족시키는 수준의 트레이드오프. 실제 계정/비밀번호 기반 인증이 필요해지면 `User` 모델 + 로그인 미들웨어로 교체하는 게 다음 확장 과제.
+
+## 디버그 API (로컬 전용)
+
+로컬 개발 중 앱 테스트 데이터를 빠르게 채우고 지우기 위한 API. `NODE_ENV=production`이면 라우터 자체가 마운트되지 않아 배포 서버(Render)에는 존재하지 않음 — 인증 없는 전체 삭제 API를 배포 환경에 노출하지 않기 위한 설계.
+
+- `POST /debug/reset` — 모든 deviceId의 영수증을 전부 삭제
+- `POST /debug/seed` — `{ "deviceId": "..." }`로 요청한 deviceId에 카테고리 6종·금액·날짜가 다양하게 분포된 더미 영수증 20건 생성
+
+```bash
+curl -X POST http://localhost:3000/debug/reset
+curl -X POST http://localhost:3000/debug/seed -H 'Content-Type: application/json' -d '{"deviceId":"YOUR-DEVICE-ID"}'
+```
+
+**배포 서버(Render)에 더미 데이터를 채워야 할 때**: `/debug`는 프로덕션에 없으므로, 어느 환경에나 열려있는 공개 `POST /receipts`를 반복 호출해 같은 더미 데이터를 채우는 `scripts/seed-via-api.ts`를 대신 사용 (삭제 기능은 없음 — 프로덕션에서 전체 삭제 API 자체를 두지 않기로 한 설계와 일관됨).
+
+```bash
+npx tsx scripts/seed-via-api.ts YOUR-DEVICE-ID                                   # 기본값: 배포 URL
+BASE_URL=http://localhost:3000 npx tsx scripts/seed-via-api.ts YOUR-DEVICE-ID    # 다른 환경 지정
+```
 
 ## 실행
 

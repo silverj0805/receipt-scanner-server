@@ -61,14 +61,35 @@ classDiagram
         +CATEGORIES: Category[]
     }
 
+    class debugRouter {
+        <<entry-points/api, apps/debug, 로컬 전용>>
+        +POST /reset
+        +POST /seed
+    }
+
+    class debugRepository {
+        <<data-access, apps/debug>>
+        +resetAllReceipts() count
+    }
+
+    class dummyReceiptsUtil {
+        <<domain, apps/debug>>
+        +buildDummyReceipts(now) DummyReceipt[]
+    }
+
     receiptsRouter --> summaryUtil : uses
     receiptsRouter --> receiptsRepository : uses
     receiptsRepository --> prisma : uses
     prisma --> Receipt : persists
     categoriesRouter --> categoryConstants : uses
+    debugRouter --> debugRepository : uses
+    debugRouter --> dummyReceiptsUtil : uses
+    debugRouter --> receiptsRepository : createReceipt 재사용
 ```
 
 `categoriesRouter`는 `receipts`와 별개 컴포넌트(`apps/categories/`)로 분리 — DB에 의존하지 않는 정적 메타데이터(id/라벨, 색상은 프론트 담당)만 반환하므로 `data-access` 계층 없이 `entry-points`+`domain`만 존재.
+
+`debugRouter`는 `NODE_ENV !== production`일 때만 `app.ts`에 마운트됨(`shouldMountDebugRoutes` 순수 함수로 판단) — 전체 삭제(`/debug/reset`) API가 배포 서버에 인증 없이 열리는 걸 막기 위한 설계. 더미 생성(`/debug/seed`)은 `receiptsRepository.createReceipt`를 그대로 재사용해 실제 생성 로직과 어긋나지 않게 함.
 
 ## 2. 객체 다이어그램 (Object Diagram)
 

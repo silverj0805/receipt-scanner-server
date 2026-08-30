@@ -1,4 +1,22 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import { shouldMountDebugRoutes } from '../apps/debug/domain/debug-env.util.js';
+
+// app.ts가 라우터를 실제로 마운트할지 판단하는 것과 같은 함수를 그대로 씀 —
+// 그렇지 않으면 프로덕션에서 /debug가 실제론 404인데 Swagger 문서에는
+// 존재하는 것처럼 나오는 불일치가 생김(문서와 실제 동작이 항상 일치해야 함).
+const routeApis = [
+  './src/apps/receipts/entry-points/api/*.routes.ts',
+  './src/apps/receipts/entry-points/api/*.routes.js',
+  './src/apps/categories/entry-points/api/*.routes.ts',
+  './src/apps/categories/entry-points/api/*.routes.js',
+];
+
+if (shouldMountDebugRoutes(process.env.NODE_ENV)) {
+  routeApis.push(
+    './src/apps/debug/entry-points/api/*.routes.ts',
+    './src/apps/debug/entry-points/api/*.routes.js',
+  );
+}
 
 export const swaggerSpec = swaggerJsdoc({
   definition: {
@@ -56,8 +74,5 @@ export const swaggerSpec = swaggerJsdoc({
       },
     },
   },
-  apis: [
-    './src/apps/**/entry-points/api/*.routes.ts',
-    './src/apps/**/entry-points/api/*.routes.js',
-  ],
+  apis: routeApis,
 });

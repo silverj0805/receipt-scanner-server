@@ -4,6 +4,8 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import { receiptsRouter } from "./apps/receipts/entry-points/api/receipts.routes.js";
 import { categoriesRouter } from "./apps/categories/entry-points/api/categories.routes.js";
+import { debugRouter } from "./apps/debug/entry-points/api/debug.routes.js";
+import { shouldMountDebugRoutes } from "./apps/debug/domain/debug-env.util.js";
 import { swaggerSpec } from "./libraries/swagger.js";
 
 export const app = express();
@@ -17,6 +19,12 @@ app.get("/", (_req, res) => {
 
 app.use("/receipts", receiptsRouter);
 app.use("/categories", categoriesRouter);
+
+// /debug 는 로컬/개발 전용 — 프로덕션(NODE_ENV=production)에서는 라우터 자체를 마운트하지 않음.
+// (전체 데이터 삭제 API를 인증 없이 배포 서버에 열어두지 않기 위함)
+if (shouldMountDebugRoutes(process.env.NODE_ENV)) {
+  app.use("/debug", debugRouter);
+}
 
 app.get("/openapi.json", (_req, res) => res.json(swaggerSpec));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
