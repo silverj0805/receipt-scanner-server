@@ -102,6 +102,23 @@ test('POST /receipts: 요청 바디의 category를 그대로 저장한다', asyn
   assert.equal(res.body.merchant, '스타벅스 강남점');
 });
 
+test('POST /receipts: rawText에 카드번호가 있으면 저장 전에 마스킹한다', async () => {
+  const res = await request(app)
+    .post('/receipts')
+    .set('X-Device-Id', DEVICE_A)
+    .send({
+      merchant: '스타벅스 강남점',
+      amount: 4500,
+      category: 'food',
+      rawText: '아메리카노 4500\n신한카드 5300-12**-****-6789 일시불',
+      date: '2026-08-20',
+    });
+
+  assert.equal(res.status, 201);
+  assert.match(res.body.rawText, /\[카드번호 마스킹됨\]/);
+  assert.equal(res.body.rawText.includes('5300-12'), false);
+});
+
 test('GET /receipts: 생성한 영수증이 목록에 포함된다', async () => {
   await request(app)
     .post('/receipts')

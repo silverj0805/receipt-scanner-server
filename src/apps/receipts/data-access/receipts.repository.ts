@@ -1,5 +1,6 @@
 import { prisma } from '@/libraries/db.js';
 import type { ReceiptFilters } from '@/apps/receipts/domain/receipt-filter.util.js';
+import { scrubCardNumbers } from '@/apps/receipts/domain/card-number-scrub.util.js';
 
 export function createReceipt(data: {
   deviceId: string;
@@ -10,7 +11,12 @@ export function createReceipt(data: {
   rawText?: string;
   date: Date;
 }) {
-  return prisma.receipt.create({ data });
+  return prisma.receipt.create({
+    data: {
+      ...data,
+      ...(data.rawText !== undefined ? { rawText: scrubCardNumbers(data.rawText) } : {}),
+    },
+  });
 }
 
 export function findAllReceipts(deviceId: string, take: number, skip: number, filters: ReceiptFilters = {}) {
@@ -52,7 +58,11 @@ export async function updateReceipt(
 ) {
   const existing = await prisma.receipt.findFirst({ where: { id, deviceId } });
   if (!existing) return null;
-  return prisma.receipt.update({ where: { id }, data });
+  const normalized = {
+    ...data,
+    ...(data.rawText !== undefined ? { rawText: scrubCardNumbers(data.rawText) } : {}),
+  };
+  return prisma.receipt.update({ where: { id }, data: normalized });
 }
 
 export async function deleteReceipt(deviceId: string, id: number) {
